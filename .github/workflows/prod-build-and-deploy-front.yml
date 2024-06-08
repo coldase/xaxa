@@ -1,0 +1,28 @@
+name: Deploy xaxa 
+
+on:
+  push:
+    branches: ["master"]
+
+jobs:
+  build-and-deploy-front:
+    runs-on: ubuntu-latest
+    env:
+      image-name: xaxa:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build application
+        run: |
+          npm ci
+          npm run build
+
+      - name: Login ghcr.io
+        run: docker login ghcr.io --username coldase --password ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build image
+        run: docker build . --tag ghcr.io/coldase/xaxa
+
+      - name: Push image to github container registry
+        run: docker push ghcr.io/coldase/xaxa
